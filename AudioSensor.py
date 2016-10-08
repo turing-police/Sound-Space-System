@@ -64,7 +64,7 @@ yList = []
 
 def makeFig():
     plt.title("Raw Audio Signal")
-    plt.ylim(-1e8, 1e8)
+    plt.ylim(-1e9, 1e9)
     # plt.scatter(xList, yList, c=yList, cmap="coolwarm")
     plt.plot(xList, yList, 'r')
     plt.xlim(xList[0], xList[-1])
