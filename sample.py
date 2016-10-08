@@ -86,10 +86,11 @@ class FreqConverter:
         return "#" + "".join(rgba_strs)
 
     def freq_to_size(self, freq):
-        lowerBound = 1e5
-        upperBound = 1e9
-        diff = upperBound - lowerBound
-        return 2 ** (((freq - diff)/diff)*6)
+        #lowerBound = 1e5
+        #upperBound = 1e9
+        #diff = upperBound - lowerBound
+        #return 2 ** (((freq - diff)/diff)*6)
+        return 20 * (freq ** 2)
 
 #class Sampler:
     #def __init__(self):
