@@ -1,5 +1,7 @@
 import random
 import png
+import struct
+import socket
 
 
 class SoundObject:
@@ -40,3 +42,54 @@ class Sampler:
             color = self.fc.freq_to_rgb(freq)
             result.append(SoundObject(x, y, color))
         return result
+
+
+class BufferClient:
+    def __init__(self, client_num, address):
+        self.client_num = client_num
+        self.x = -1
+        self.y = -1
+
+
+class BufferServer:
+    def __init__(self):
+        self.host = ''
+        self.serv_port = 8888
+        self.backlog = 5
+        self.size = 1024
+        self.clients = []
+
+    def start(self):
+        self.serv_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.serv_sock.bind((self.host, self.serv_port))
+        self.serv_sock.bind.listen(self.backlog)
+        for i in range(3):
+            client, address = self.serv_sock.accept()
+            self.clients.append(BufferClient(client, address))
+            data = client.recv(self.size)
+            if data:
+                client.send(data)
+            client.close()
+
+    def get_sound_objs(self):
+        result = []
+        for i in range(3):
+            x = random.randint(0, 600)
+            y = random.randint(0, 600)
+            freq = random.randint(0, 20000)
+            color = self.fc.freq_to_rgb(freq)
+            result.append(SoundObject(x, y, color))
+        return result
+
+
+def main():
+    with open('sampleData', 'rb') as f1:
+        byte = "a"
+        while byte:
+            byte = f1.read(1)
+            if byte:
+                val = struct.unpack('B', byte)[0]
+                print(val)
+
+if __name__ == "__main__":
+    main()
