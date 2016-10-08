@@ -27,12 +27,12 @@ class SoundProcessor:
         intensitySum = 0
         #print(str(len(arr0)) + " " + str(len(arr1)) + " " + str(len(arr2)))
         for i in range(sample_rate):
-            #intensity0 = abs(arr0[i]) * client0.scale
-            #intensity1 = abs(arr1[i]) * client1.scale
-            #intensity2 = abs(arr2[i]) * client2.scale
-            intensity0 = abs(arr0[i])
-            intensity1 = abs(arr1[i])
-            intensity2 = abs(arr2[i])
+            intensity0 = abs(arr0[i]) * client0.scale
+            intensity1 = abs(arr1[i]) * client1.scale
+            intensity2 = abs(arr2[i]) * client2.scale
+            #intensity0 = abs(arr0[i])
+            #intensity1 = abs(arr1[i])
+            #intensity2 = abs(arr2[i])
             intensitySum = intensitySum + intensity0 + intensity1 + intensity2
             xytuple = self.processClients(client0, client1, client2, intensity0,
                                      intensity1, intensity2)
@@ -63,6 +63,7 @@ class SoundObject:
         self.y = y
         self.color = fc.freq_to_rgb(intensity)
         self.size = fc.freq_to_size(intensity)
+        print(self.size)
 
     def __str__(self):
         return " ".join([str(self.x), str(self.y), self.color])
@@ -90,7 +91,8 @@ class FreqConverter:
         #upperBound = 1e9
         #diff = upperBound - lowerBound
         #return 2 ** (((freq - diff)/diff)*6)
-        return 20 * ((freq/2147000000) ** 2)
+        #return 20 * ((freq/2147000000) ** 2)
+        return 100 * freq /2147000000
 
 #class Sampler:
     #def __init__(self):
@@ -126,7 +128,6 @@ class BufferServer:
         self.sp = SoundProcessor()
 
     def update_sound_objs(self, data_pairs, min_len):
-        print(min_len)
         self.sound_objs = [self.sp.process(data_pairs, min_len//4)]
         #print(self.sound_objs[0])
 
@@ -159,6 +160,7 @@ class BufferServer:
             data = bc.sock.recv(16)
             vals = struct.unpack('IId', data)
             bc.x, bc.y, bc.scale = vals
+            print(bc.scale)
             self.clients.append(bc)
         self.send_acks()
         while True:

@@ -11,9 +11,9 @@ class SpaceGUI:
                                        fill=color)
 
     def draw_nodes(self, size):
-        node1 = self.draw_node(self.width/2, self.height/8, size, 'blue')
-        node2 = self.draw_node(self.width/8, 7 * self.height/8, size, 'blue')
-        node3 = self.draw_node(7 * self.width/8, 7 * self.height/8, size,
+        node1 = self.draw_node(self.width/2, self.height/4, size, 'blue')
+        node2 = self.draw_node(self.width/6, 5 * self.height/6, size, 'blue')
+        node3 = self.draw_node(5 * self.width/6, 5 * self.height/6, size,
                                'blue')
         return [node1, node2, node3]
 
@@ -48,7 +48,7 @@ class SpaceGUI:
         self.root = tk.Tk()
         self.root.title("Space Sound System")
         self.mainframe = ttk.Frame(self.root)
-        self.width = 800
+        self.width = 600
         self.height = 600
         self.canvas = tk.Canvas(self.mainframe, width=self.width,
                                 height=self.height)
