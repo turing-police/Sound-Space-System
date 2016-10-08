@@ -25,6 +25,7 @@ class SoundProcessor:
         locX = []
         locY = []
         intensitySum = 0
+        #print(str(len(arr0)) + " " + str(len(arr1)) + " " + str(len(arr2)))
         for i in range(sample_rate):
             #intensity0 = struct.unpack("I", stream0.readline(4))[0]
             #intensity1 = struct.unpack("I", stream1.readline(4))[0]
@@ -116,8 +117,8 @@ class BufferServer:
         self.sp = SoundProcessor()
 
     def update_sound_objs(self, data_pairs):
-        self.sound_objs = [self.sp.process(data_pairs)]
-        print(self.sound_objs[0])
+        self.sound_objs = [self.sp.process(data_pairs, 512)]
+        #print(self.sound_objs[0])
 
     def get_sound_objs(self):
         #result = []
@@ -154,7 +155,8 @@ class BufferServer:
             data_pairs = []
             for client in self.clients:
                 data = client.sock.recv(self.size)
-                data_array = array.array('I', data)
+                print(len(data))
+                data_array = array.array('i', data)
                 data_pairs.append((client, data_array))
             self.update_sound_objs(data_pairs)
 
