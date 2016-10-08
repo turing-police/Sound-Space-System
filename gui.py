@@ -22,7 +22,7 @@ class SpaceGUI:
             self.canvas.delete(item)
         sound_objs = self.bs.get_sound_objs()
         for obj in sound_objs:
-            n1 = self.draw_node(obj.x, obj.y, 10, obj.color)
+            n1 = self.draw_node(obj.x, obj.y, obj.size, obj.color)
             items.append(n1)
         self.root.after(100, self.draw_canvas, items)
 
