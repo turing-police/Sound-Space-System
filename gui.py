@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
 import sample
+import _thread
 
 
 class SpaceGUI:
@@ -17,10 +18,9 @@ class SpaceGUI:
         return [node1, node2, node3]
 
     def draw_canvas(self, items):
-        sampler = sample.Sampler()
         for item in items:
             self.canvas.delete(item)
-        sound_objs = sampler.get_sound_objs()
+        sound_objs = self.bs.get_sound_objs()
         for obj in sound_objs:
             n1 = self.draw_node(obj.x, obj.y, 10, obj.color)
             items.append(n1)
@@ -47,6 +47,8 @@ class SpaceGUI:
         self.height = 600
         self.canvas = tk.Canvas(self.mainframe, width=self.width,
                                 height=self.height)
+        self.bs = sample.BufferServer()
+        _thread.start_new_thread(self.bs.start, ())
 
 
 def main():

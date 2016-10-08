@@ -1,18 +1,18 @@
-import random
+#import random
 import png
 import struct
 import socket
 import array
-import spectrum
 
 class SoundProcessor:
     def __init__(self):
-        pass
+        self.fc = FreqConverter()
+
 
     # data_pairs should be 3 pairs in a list
     # each pair[0] is the client and each pair[1] is an int array containing sound intensities
     # returns a list of length 3.  list[0] is the x position of the sound, list[1] is the y position.  list[2] is the average intensity
-    def process(data_pairs):
+    def process(self, data_pairs):
         pair0 = data_pairs[0]
         pair1 = data_pairs[1]
         pair2 = data_pairs[2]
@@ -25,37 +25,45 @@ class SoundProcessor:
         locX = []
         locY = []
         intensitySum = 0
-        for i in range(512):
+        for i in range(10):
             #intensity0 = struct.unpack("I", stream0.readline(4))[0]
             #intensity1 = struct.unpack("I", stream1.readline(4))[0]
             #intensity2 = struct.unpack("I", stream2.readline(4))[0]
-            intensity0 = arr[i]
-            intensity1 = arr[i]
-            intensity2 = arr[i]
+            intensity0 = arr0[i]
+            intensity1 = arr1[i]
+            intensity2 = arr2[i]
             intensitySum = intensitySum + intensity0 + intensity1 + intensity2
-            xytuple = processClients(client0, client1, client2, intensity0, intensity1, intensity2)
+            xytuple = self.processClients(client0, client1, client2, intensity0,
+                                     intensity1, intensity2)
             locX.append(xytuple[0])
             locY.append(xytuple[1])
         sumx = 0
         sumy = 0
-        for num in intensitiesx:
+        for num in locX:
             sumx += num
-        for num in intensitiesy:
+        for num in locY:
             sumy += num
 
-        averageIntensity = intensitySum/(512*3)
-        return (sumx/(512*averageIntensity), sumy/(512*averageIntensity), averageIntensity)
+        averageIntensity = intensitySum/(10*3)
+        color = self.fc.freq_to_rgb(averageIntensity)
+        so = SoundObject(sumx/(10*averageIntensity), sumy/(10*averageIntensity),
+                color)
+        return so
 
-    def processClients(c0, c1, c2, i0, i1, i2):
+    def processClients(self, c0, c1, c2, i0, i1, i2):
         x = ((c0.x * i0)+(c1.x * i1)+(c2.x * i2))/3
         y = ((c0.y * i0)+(c1.y * i1)+(c2.y * i2))/3
         return (x, y)
+
 
 class SoundObject:
     def __init__(self, x, y, color):
         self.x = x
         self.y = y
         self.color = color
+
+    def __str__(self):
+        return " ".join([str(self.x), str(self.y), self.color])
 
 
 class FreqConverter:
@@ -69,26 +77,26 @@ class FreqConverter:
         self.rgb_vals = self.rgb_vals[::-1]
 
     def freq_to_rgb(self, freq):
-        idx = min(freq * len(self.rgb_vals)//20000, len(self.rgb_vals) - 1)
+        idx = min(int(freq) * len(self.rgb_vals)//2147000000, len(self.rgb_vals) - 1)
         rgba = self.rgb_vals[idx][:3]
         rgba_strs = [str(hex(val))[2:] for val in rgba]
         rgba_strs = ["0" + val if len(val) < 2 else val for val in rgba_strs]
         return "#" + "".join(rgba_strs)
 
 
-class Sampler:
-    def __init__(self):
-        self.fc = FreqConverter()
+#class Sampler:
+    #def __init__(self):
+        #self.fc = FreqConverter()
 
-    def get_sound_objs(self):
-        result = []
-        for i in range(3):
-            x = random.randint(0, 600)
-            y = random.randint(0, 600)
-            freq = random.randint(0, 20000)
-            color = self.fc.freq_to_rgb(freq)
-            result.append(SoundObject(x, y, color))
-        return result
+    #def get_sound_objs(self):
+        #result = []
+        #for i in range(3):
+            #x = random.randint(0, 600)
+            #y = random.randint(0, 600)
+            #freq = random.randint(0, 20000)
+            #color = self.fc.freq_to_rgb(freq)
+            #result.append(SoundObject(x, y, color))
+        #return result
 
 
 class BufferClient:
@@ -105,11 +113,26 @@ class BufferServer:
         self.backlog = 5
         self.size = 2048
         self.clients = []
+        self.sound_objs = []
+        self.sp = SoundProcessor()
+
+    def update_sound_objs(self, data_pairs):
+        self.sound_objs = [self.sp.process(data_pairs)]
+        print(self.sound_objs[0])
+
+    def get_sound_objs(self):
+        #result = []
+        #for i in range(3):
+            #x = random.randint(0, 600)
+            #y = random.randint(0, 600)
+            #freq = random.randint(0, 20000)
+            #color = self.fc.freq_to_rgb(freq)
+            #result.append(SoundObject(x, y, color))
+        return self.sound_objs
 
     def wait(self, client):
         while True:
             data = client.sock.recv(self.size)
-            print(data)
 
     def send_acks(self):
         for client in self.clients:
@@ -117,6 +140,7 @@ class BufferServer:
 
     def start(self):
         self.serv_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.serv_sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.serv_sock.bind((self.host, self.serv_port))
         self.serv_sock.listen(self.backlog)
         for i in range(3):
@@ -126,25 +150,14 @@ class BufferServer:
             vals = struct.unpack('II', data)
             bc.x, bc.y = vals
             self.clients.append(bc)
-            break
         self.send_acks()
         while True:
-            aggregated_values = []
+            data_pairs = []
             for client in self.clients:
                 data = client.sock.recv(self.size)
                 data_array = array.array('I', data)
-                aggregated_values.append(client, data_array)
-
-
-    def get_sound_objs(self):
-        result = []
-        for i in range(3):
-            x = random.randint(0, 600)
-            y = random.randint(0, 600)
-            freq = random.randint(0, 20000)
-            color = self.fc.freq_to_rgb(freq)
-            result.append(SoundObject(x, y, color))
-        return result
+                data_pairs.append((client, data_array))
+            self.update_sound_objs(data_pairs)
 
 
 def main():
