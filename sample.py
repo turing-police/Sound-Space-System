@@ -46,8 +46,9 @@ class SoundProcessor:
             sumy += num
 
         averageIntensity = intensitySum/(sample_rate*3)
-        color = self.fc.freq_to_rgb(averageIntensity)
-        so = SoundObject(sumx/(sample_rate*averageIntensity), sumy/(sample_rate*averageIntensity), color)
+        so = SoundObject(sumx/(sample_rate*averageIntensity),
+                         sumy/(sample_rate*averageIntensity), averageIntensity,
+                         self.fc)
         return so
 
     def processClients(self, c0, c1, c2, i0, i1, i2):
@@ -57,10 +58,11 @@ class SoundProcessor:
 
 
 class SoundObject:
-    def __init__(self, x, y, color):
+    def __init__(self, x, y, intensity, fc):
         self.x = x
         self.y = y
-        self.color = color
+        self.color = fc.freq_to_rgb(intensity)
+        self.size = fc.freq_to_size(intensity)
 
     def __str__(self):
         return " ".join([str(self.x), str(self.y), self.color])
@@ -83,6 +85,8 @@ class FreqConverter:
         rgba_strs = ["0" + val if len(val) < 2 else val for val in rgba_strs]
         return "#" + "".join(rgba_strs)
 
+    def freq_to_size(self, freq):
+        return 50 * freq//2147000000
 
 #class Sampler:
     #def __init__(self):
@@ -111,13 +115,14 @@ class BufferServer:
         self.host = ''
         self.serv_port = 8888
         self.backlog = 5
-        self.size = 2048
+        self.size = 4096
         self.clients = []
         self.sound_objs = []
         self.sp = SoundProcessor()
 
-    def update_sound_objs(self, data_pairs):
-        self.sound_objs = [self.sp.process(data_pairs, 512)]
+    def update_sound_objs(self, data_pairs, min_len):
+        print(min_len)
+        self.sound_objs = [self.sp.process(data_pairs, min_len//4)]
         #print(self.sound_objs[0])
 
     def get_sound_objs(self):
@@ -153,12 +158,14 @@ class BufferServer:
         self.send_acks()
         while True:
             data_pairs = []
+            min_len = self.size
             for client in self.clients:
                 data = client.sock.recv(self.size)
-                print(len(data))
                 data_array = array.array('i', data)
+                if len(data) < min_len:
+                    min_len = len(data)
                 data_pairs.append((client, data_array))
-            self.update_sound_objs(data_pairs)
+            self.update_sound_objs(data_pairs, min_len)
 
 
 def main():
