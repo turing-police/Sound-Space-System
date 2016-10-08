@@ -90,7 +90,7 @@ class FreqConverter:
         #upperBound = 1e9
         #diff = upperBound - lowerBound
         #return 2 ** (((freq - diff)/diff)*6)
-        return 20 * (freq ** 2)
+        return 20 * ((freq/2147000000) ** 2)
 
 #class Sampler:
     #def __init__(self):
