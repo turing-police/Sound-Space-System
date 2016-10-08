@@ -7,8 +7,8 @@ import time
 import sounddevice as sd
 from queue import Queue
 
-if len(sys.argv) != 4:
-	print('Usage: ip x y')
+if len(sys.argv) != 5:
+	print('Usage: ip x y scale')
 	exit()
 
 ip = sys.argv[1]
@@ -16,6 +16,8 @@ port = 8888
 
 x = int(sys.argv[2])
 y = int(sys.argv[3])
+
+scale = float(sys.argv[4])
 
 print((x, y))
 
@@ -32,7 +34,6 @@ while True:
 		if(err.errno != TimeoutError):
 			time.sleep(0.5)
 			
-
 sock.settimeout(None)
 
 print('Sending coordinates')
@@ -63,7 +64,4 @@ with sd.RawInputStream(samplerate=RATE, device=None, channels=CHANNELS, callback
 		print("press Ctrl+C to stop the recording")
 		print("#" * 80)
 		while True:
-			print(queue.get())
 			sock.send(queue.get())
-
-	# sock.send(b'a')
