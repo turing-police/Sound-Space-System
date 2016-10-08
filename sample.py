@@ -108,6 +108,7 @@ class BufferClient:
         self.sock = client_sock
         self.x = -1
         self.y = -1
+        self.scale = 1
 
 
 class BufferServer:
@@ -152,8 +153,8 @@ class BufferServer:
             client_sock, address = self.serv_sock.accept()
             bc = BufferClient(client_sock, address)
             data = bc.sock.recv(self.size)
-            vals = struct.unpack('II', data)
-            bc.x, bc.y = vals
+            vals = struct.unpack('IId', data)
+            bc.x, bc.y, bc.scale = vals
             self.clients.append(bc)
         self.send_acks()
         while True:

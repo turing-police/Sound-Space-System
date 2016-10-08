@@ -24,7 +24,7 @@ class SpaceGUI:
         for obj in sound_objs:
             n1 = self.draw_node(obj.x, obj.y, obj.size, obj.color)
             items.append(n1)
-        self.root.after(100, self.draw_canvas, items)
+        self.root.after(10, self.draw_canvas, items)
 
     def run(self):
         self.mainframe.grid(column=0, row=0, sticky=(tk.N, tk.W, tk.E, tk.S))
