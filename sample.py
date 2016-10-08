@@ -12,7 +12,7 @@ class SoundProcessor:
     # data_pairs should be 3 pairs in a list
     # each pair[0] is the client and each pair[1] is an int array containing sound intensities
     # returns a list of length 3.  list[0] is the x position of the sound, list[1] is the y position.  list[2] is the average intensity
-    def process(self, data_pairs):
+    def process(self, data_pairs, sample_rate):
         pair0 = data_pairs[0]
         pair1 = data_pairs[1]
         pair2 = data_pairs[2]
@@ -25,13 +25,13 @@ class SoundProcessor:
         locX = []
         locY = []
         intensitySum = 0
-        for i in range(10):
+        for i in range(sample_rate):
             #intensity0 = struct.unpack("I", stream0.readline(4))[0]
             #intensity1 = struct.unpack("I", stream1.readline(4))[0]
             #intensity2 = struct.unpack("I", stream2.readline(4))[0]
-            intensity0 = arr0[i]
-            intensity1 = arr1[i]
-            intensity2 = arr2[i]
+            intensity0 = abs(arr0[i])
+            intensity1 = abs(arr1[i])
+            intensity2 = abs(arr2[i])
             intensitySum = intensitySum + intensity0 + intensity1 + intensity2
             xytuple = self.processClients(client0, client1, client2, intensity0,
                                      intensity1, intensity2)
@@ -44,14 +44,13 @@ class SoundProcessor:
         for num in locY:
             sumy += num
 
-        averageIntensity = intensitySum/(10*3)
+        averageIntensity = intensitySum/(sample_rate*3)
         color = self.fc.freq_to_rgb(averageIntensity)
-        so = SoundObject(sumx/(10*averageIntensity), sumy/(10*averageIntensity),
-                color)
+        so = SoundObject(sumx/(sample_rate*averageIntensity), sumy/(sample_rate*averageIntensity), color)
         return so
 
     def processClients(self, c0, c1, c2, i0, i1, i2):
-        x = ((c0.x * i0)+(c1.x * i1)+(c2.x * i2))/ 3 #was 3 previously
+        x = ((c0.x * i0)+(c1.x * i1)+(c2.x * i2))/ 3
         y = ((c0.y * i0)+(c1.y * i1)+(c2.y * i2))/ 3
         return (x, y)
 
