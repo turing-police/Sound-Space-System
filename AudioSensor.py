@@ -37,7 +37,7 @@ while True:
 sock.settimeout(None)
 
 print('Sending coordinates')
-sock.send(struct.pack('II', x, y))
+sock.send(struct.pack('IId', x, y, scale))
 
 print('Waiting for acknowledgement')
 sock.recv(1)
