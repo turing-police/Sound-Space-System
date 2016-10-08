@@ -39,47 +39,36 @@ def callback(indata, frames, time, status):
 
 
 
-
-def makeFig():
-    plt.scatter(xList,yList) # I think you meant this
-    print(plt)
-
 plt.ion() # enable interactivity
 fig=plt.figure() # make a figure
 
+
+
 xList = []
 yList = []
+
+def makeFig():
+    plt.ylim(-1e8, 1e8)
+    plt.scatter(xList, yList)
+    plt.xlim(xList[0], xList[-1])
+    plt.pause(0.00000001)
 
 with sd.InputStream(samplerate=RATE, device=None, channels=CHANNELS, callback=callback, dtype='int32'):
     print("#" * 80)
     print("press Ctrl+C to stop the recording")
     print("#" * 80)
     while True:
-        xList.append(times.get())
-        yList.append(queue.get())
+        time = times.get()
+        data = queue.get().reshape(512)
+        xList = time
+        yList = data
+        # xList.append(time)
+        # yList.append(data)
+
         drawnow(makeFig)
-        plt.pause(0.001)
+        plt.pause(0.00000001)
+
         # buffLength = 100
         # plt.plot(queue.get())
         # print(queue.get())
         # sock.send(queue.get())
-
-
-
-
-for i in np.arange(50):
-    xList.append(i)
-    yList.append(y)
-    print(len(xList))
-    if (len(xList) > 5120):
-        print("TRUEEE")
-        plt.clf()
-        xList = []
-        yList = []
-    drawnow(makeFig)
-
-        # xList = xList[512:]
-        # yList = yList[512:]
-    #makeFig()      The drawnow(makeFig) command can be replaced
-    #plt.draw()     with makeFig(); plt.draw()
-    plt.pause(0.001)
