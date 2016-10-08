@@ -51,8 +51,8 @@ class SoundProcessor:
         return so
 
     def processClients(self, c0, c1, c2, i0, i1, i2):
-        x = ((c0.x * i0)+(c1.x * i1)+(c2.x * i2))/ (i0+i1+i2) #was 3 previously
-        y = ((c0.y * i0)+(c1.y * i1)+(c2.y * i2))/ (i0+i1+i2)
+        x = ((c0.x * i0)+(c1.x * i1)+(c2.x * i2))/ 3 #was 3 previously
+        y = ((c0.y * i0)+(c1.y * i1)+(c2.y * i2))/ 3
         return (x, y)
 
 
