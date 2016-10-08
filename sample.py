@@ -80,7 +80,7 @@ class FreqConverter:
         self.rgb_vals = self.rgb_vals[::-1]
 
     def freq_to_rgb(self, freq):
-        idx = min(int(freq) * len(self.rgb_vals)//2147000000, len(self.rgb_vals) - 1)
+        idx = min(int(freq*4) * len(self.rgb_vals)//2147000000, len(self.rgb_vals) - 1)
         rgba = self.rgb_vals[idx][:3]
         rgba_strs = [str(hex(val))[2:] for val in rgba]
         rgba_strs = ["0" + val if len(val) < 2 else val for val in rgba_strs]
@@ -92,7 +92,7 @@ class FreqConverter:
         #diff = upperBound - lowerBound
         #return 2 ** (((freq - diff)/diff)*6)
         #return 20 * ((freq/2147000000) ** 2)
-        return 100 * freq /2147000000
+        return 200 * freq /2147000000
 
 #class Sampler:
     #def __init__(self):
