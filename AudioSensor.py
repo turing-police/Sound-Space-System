@@ -10,7 +10,7 @@ from queue import Queue
 plotting = False
 
 if len(sys.argv) != 5:
-	if (len(sys.argv) == "p"):
+	if (len(sys.argv) == 6):
 		plotting = True
 	else:
 		print('Usage: ip x y scale')
