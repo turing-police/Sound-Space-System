@@ -3,6 +3,7 @@
 import sys
 import socket
 import struct
+import time
 import sounddevice as sd
 from queue import Queue
 
@@ -18,8 +19,21 @@ y = int(sys.argv[3])
 
 print((x, y))
 
-sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-sock.connect((ip, port))
+sock = None
+
+while True:
+	try:
+		sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+		sock.settimeout(0.5)
+		sock.connect((ip, port))
+		break
+	except OSError as err:
+		print(err)
+		if(err.errno != TimeoutError):
+			time.sleep(0.5)
+			
+
+sock.settimeout(None)
 
 print('Sending coordinates')
 sock.send(struct.pack('II', x, y))
