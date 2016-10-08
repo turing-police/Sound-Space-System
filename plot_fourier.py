@@ -24,16 +24,10 @@ times = Queue()
 def callback(indata, frames, time, status):
     """This is called (from a separate thread) for each audio block."""
     time = np.linspace(time.inputBufferAdcTime, time.currentTime, 512)
-    # print("Input == {}  ||  Current == {}  ||  Output == {}".format(time.inputBufferAdcTime, time.currentTime, time.outputBufferDacTime))
-    # print(time.inputBufferAdcTime, end="  |  ")
-    # print(time.currentTime)
-    # print()
+
     if status:
         print(status, flush=True)
 
-    # print(time)
-    # print ("TYPE = ",type(indata))
-    # print("INDATA == ", indata)
     times.put(time)
     queue.put(indata)
 
@@ -44,12 +38,18 @@ fig=plt.figure() # make a figure
 
 xList = []
 yList = []
-
 def makeFig():
-    plt.ylim(-1e8, 1e8)
-    plt.scatter(xList, yList)
-    plt.xlim(xList[0], xList[-1])
+    spectrum = np.fft.fft(yList)
+    frequencies = np.fft.fftfreq(len(spectrum))
+    plt.plot(frequencies,spectrum)
+    plt.ylim(-10e9, 10e9)
     plt.pause(1e-9)
+    # plt.show()
+    # plt.pause(1)
+    # plt.ylim(-1e8, 1e8)
+    # plt.scatter(xList, yList)
+    # plt.xlim(xList[0], xList[-1])
+    # plt.pause(1e-9)
 
 with sd.InputStream(samplerate=RATE, device=None, channels=CHANNELS, callback=callback, dtype='int32'):
     print("#" * 80)
