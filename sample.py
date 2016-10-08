@@ -155,7 +155,7 @@ class BufferServer:
         for i in range(3):
             client_sock, address = self.serv_sock.accept()
             bc = BufferClient(client_sock, address)
-            data = bc.sock.recv(self.size)
+            data = bc.sock.recv(16)
             vals = struct.unpack('IId', data)
             bc.x, bc.y, bc.scale = vals
             self.clients.append(bc)
