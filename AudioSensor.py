@@ -64,4 +64,6 @@ with sd.RawInputStream(samplerate=RATE, device=None, channels=CHANNELS, callback
 		print("press Ctrl+C to stop the recording")
 		print("#" * 80)
 		while True:
-			sock.send(queue.get())
+			data = queue.get()
+			print('Sent {0} samples.'.format(len(data)))
+			sock.send(data)
