@@ -2,6 +2,8 @@ import random
 import png
 import struct
 import socket
+import array
+import spectrum
 
 
 class SoundObject:
@@ -45,8 +47,8 @@ class Sampler:
 
 
 class BufferClient:
-    def __init__(self, client_num, address):
-        self.client_num = client_num
+    def __init__(self, client_sock, address):
+        self.sock = client_sock
         self.x = -1
         self.y = -1
 
@@ -56,20 +58,38 @@ class BufferServer:
         self.host = ''
         self.serv_port = 8888
         self.backlog = 5
-        self.size = 1024
+        self.size = 2048
         self.clients = []
+
+    def wait(self, client):
+        while True:
+            data = client.sock.recv(self.size)
+            print(data)
+
+    def send_acks(self):
+        for client in self.clients:
+            client.sock.send(b'r')
 
     def start(self):
         self.serv_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.serv_sock.bind((self.host, self.serv_port))
-        self.serv_sock.bind.listen(self.backlog)
+        self.serv_sock.listen(self.backlog)
         for i in range(3):
-            client, address = self.serv_sock.accept()
-            self.clients.append(BufferClient(client, address))
-            data = client.recv(self.size)
-            if data:
-                client.send(data)
-            client.close()
+            client_sock, address = self.serv_sock.accept()
+            bc = BufferClient(client_sock, address)
+            data = bc.sock.recv(self.size)
+            vals = struct.unpack('II', data)
+            bc.x, bc.y = vals
+            self.clients.append(bc)
+            break
+        self.send_acks()
+        while True:
+            aggregated_values = []
+            for client in self.clients:
+                data = client.sock.recv(self.size)
+                data_array = array.array('I', data)
+                aggregated_values.append(client, data_array)
+
 
     def get_sound_objs(self):
         result = []
@@ -83,13 +103,16 @@ class BufferServer:
 
 
 def main():
-    with open('sampleData', 'rb') as f1:
-        byte = "a"
-        while byte:
-            byte = f1.read(1)
-            if byte:
-                val = struct.unpack('B', byte)[0]
-                print(val)
+    b_server = BufferServer()
+    b_server.start()
+
+    #with open('sampleData', 'rb') as f1:
+        #byte = "a"
+        #while byte:
+            #byte = f1.read(1)
+            #if byte:
+                #val = struct.unpack('B', byte)[0]
+                #print(val)
 
 if __name__ == "__main__":
     main()
