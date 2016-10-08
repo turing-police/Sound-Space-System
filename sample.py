@@ -27,12 +27,12 @@ class SoundProcessor:
         intensitySum = 0
         #print(str(len(arr0)) + " " + str(len(arr1)) + " " + str(len(arr2)))
         for i in range(sample_rate):
-            #intensity0 = struct.unpack("I", stream0.readline(4))[0]
-            #intensity1 = struct.unpack("I", stream1.readline(4))[0]
-            #intensity2 = struct.unpack("I", stream2.readline(4))[0]
-            intensity0 = abs(arr0[i]) * client0.scale
-            intensity1 = abs(arr1[i]) * client1.scale
-            intensity2 = abs(arr2[i]) * client2.scale
+            #intensity0 = abs(arr0[i]) * client0.scale
+            #intensity1 = abs(arr1[i]) * client1.scale
+            #intensity2 = abs(arr2[i]) * client2.scale
+            intensity0 = abs(arr0[i])
+            intensity1 = abs(arr1[i])
+            intensity2 = abs(arr2[i])
             intensitySum = intensitySum + intensity0 + intensity1 + intensity2
             xytuple = self.processClients(client0, client1, client2, intensity0,
                                      intensity1, intensity2)
