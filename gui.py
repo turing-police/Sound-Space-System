@@ -2,7 +2,7 @@ import tkinter as tk
 from tkinter import ttk
 import sample
 import _thread
-
+import random
 
 class SpaceGUI:
 
@@ -17,7 +17,7 @@ class SpaceGUI:
                                'blue')
         return [node1, node2, node3]
 
-    def draw_canvas(self, items, prevX, prevY, prevSize):
+    def draw_canvas(self, items, prevX, prevY, prevSize, oldCatX, oldCatY):
         for item in items:
             self.canvas.delete(item)
         sound_objs = self.bs.get_sound_objs()
@@ -31,7 +31,17 @@ class SpaceGUI:
             size = ((obj.size - prevSize) * transitionRate) + prevSize
             n1 = self.draw_node(x, y, size, obj.color)
             items.append(n1)
-        self.root.after(10, self.draw_canvas, items, x, y, size)
+        #space cat stuff
+        self.img = tk.PhotoImage(file="SpaceCat50x50.gif")
+        newCatX = ((random.randint(-1000, 1000)/150) + oldCatX) % 600
+        newCatY = ((random.randint(-1000, 1000)/150) + oldCatY) % 600
+        self.canvas.create_image(newCatX, newCatY, image=self.img)
+        if (((x - newCatX) < 25) and ((x - newCatX) > -25) and ((y - newCatY) < 25) and ((y - newCatY) > -25)):
+            self.img = tk.PhotoImage(file="gameOver.gif")
+            self.canvas.create_image(300, 300, image=self.img)
+            input()
+        #end space cat stuff
+        self.root.after(10, self.draw_canvas, items, x, y, size, newCatX, newCatY)
 
     def run(self):
         self.mainframe.grid(column=0, row=0, sticky=(tk.N, tk.W, tk.E, tk.S))
@@ -39,7 +49,7 @@ class SpaceGUI:
         self.mainframe.rowconfigure(0, weight=1)
 
         self.draw_nodes(10)
-        self.draw_canvas([], 0, 0, 0)
+        self.draw_canvas([], 0, 0, 0, 100, 100)
 
         for child in self.mainframe.winfo_children():
             child.grid_configure(padx=5, pady=5)
